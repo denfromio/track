@@ -30,20 +30,22 @@ function store_event( $name ) {
   
   if ( $error ) {
     echo $name . "\n";
-    echo 'Error: ' . $resposne . "\n\n";
+    echo 'Error: ' . $response . "\n\n";
     
     $err_col = 'Unknown field found while parsing TSKV format: ';
     $err_tbl = 'DB::Exception: Table default.';
     
-    if ( strpos($resposne, $err_col) ) {
-        $col = substr($resposne, strpos($resposne, $err_col) + strlen($err_col), strpos($resposne, ': (at row') - strpos($resposne, $err_col) - strlen($err_col));
-        echo 'Adding column ' . $col . "\n";
-        exec('clickhouse-client -q "alter table event add column ' . $col . ' String"');
+    if ( strpos($response, $err_col) ) {
+      $col = substr($response, strpos($response, $err_col) + strlen($err_col), strpos($response, ': (at row') - strpos($response, $err_col) - strlen($err_col));
+      echo 'Adding column ' . $col . "\n";
+      exec('clickhouse-client -q "alter table event add column ' . $col . ' String"');
+      # store_event($name);
     }
     else if ( strpos($resposne, $err_tbl) ) {
-        $tbl = substr($resposne, strpos($resposne, $err_tbl) + strlen($err_tbl), strpos($resposne, ' doesn\'t exist.') - strpos($resposne, $err_tbl) - strlen($err_tbl));
-        echo 'Adding table ' . $tbl . "\n";
-        exec('clickhouse-client -q "create table ' . $tbl . ' (time Date) engine = MergeTree ORDER BY time Partition by time"');
+      $tbl = substr($response, strpos($response, $err_tbl) + strlen($err_tbl), strpos($response, ' doesn\'t exist.') - strpos($response, $err_tbl) - strlen($err_tbl));
+      echo 'Adding table ' . $tbl . "\n";
+      exec('clickhouse-client -q "create table ' . $tbl . ' (time Date) engine = MergeTree ORDER BY time Partition by time"');
+      # store_event($name);
     }
     else {
       exec('cat /var/log/track/in_' . $name . '.pending >> /var/log/track/in_' . $name . '.error');
