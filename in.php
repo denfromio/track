@@ -41,7 +41,7 @@ function store_event( $name ) {
     else if ( strpos($response, $err_tbl) ) {
       $tbl = substr($response, strpos($response, $err_tbl) + strlen($err_tbl), strpos($response, ' doesn\'t exist.') - strpos($response, $err_tbl) - strlen($err_tbl));
       echo 'Adding table ' . $tbl . "\n";
-      exec('clickhouse-client -q "create table ' . $tbl . ' (time Date) engine = MergeTree ORDER BY time Partition by time"');
+      exec('clickhouse-client -q "create table ' . $tbl . ' (time DateTime) engine = MergeTree ORDER BY time Partition by toDate(time)"');
       store_event($name);
     }
     else {
