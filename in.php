@@ -1,33 +1,50 @@
 <?php
 
-while ( 1 ) {
-  clearstatcache();
-  
-  if ( is_file('/var/log/track/in.pending.log') ) {
-    $o = null;
-    exec('cat /var/log/track/in.pending.log | clickhouse-client -q "INSERT INTO event FORMAT TSKV" 2>&1', $o, $error);
-    
-    if ( $error ) {
-      $o = implode("\n", $o);
-
-      $err = 'Unknown field found while parsing TSKV format: ';
-      if ( strpos($o, $err) ) {
-        $col = substr($o, strpos($o, $err) + strlen($err), strpos($o, ': (at row') - strpos($o, $err) - strlen($err));
-        echo 'we should add col: ' . $col . "\n";
-        exec('clickhouse-client -q "alter table event add column ' . $col . ' String"');
-        exec('cat /var/log/track/in.pending.log | clickhouse-client -q "INSERT INTO event FORMAT TSKV"');
-      }
-      else {
-        exec('cat /var/log/track/in.pending.log >> /var/log/track/in.error.log');
+function detach_logs() {
+  foreach ( glob('/var/log/track/in_*.log') as $log ) {
+    if ( filesize($log) ) {
+      $detach = true;
+      exec('mv ' . $log . ' ' . str_replace('.log', '.pending', $log));
     }
-
-    unlink('/var/log/track/in.pending.log');
   }
-
-  sleep(5);
-
-  if ( filesize('/var/log/track/in.log') ) {
-    exec('mv /var/log/track/in.log /var/log/track/in.pending.log');
+  
+  if ( $detach ) {
     exec('kill -USR1 `cat /var/run/nginx.pid`');
   }
+}
+
+function store_pending() {
+  foreach ( glob('/var/log/track/in_*.pending') as $log ) {
+    $m = [];
+    preg_match('/in_(.+)\.pending/', $log, $m);    
+    $event = $m[1];
+
+    store_event($event);
+    unlink($log);
+  }
+}
+
+function store_event( $name ) {
+  exec('cat /var/log/track/in_' . $name . '.pending | clickhouse-client -q "INSERT INTO ' . $name . ' FORMAT TSKV" 2>&1', $o, $error);
+  $response = implode("\n", $o);
+  
+  if ( $error ) {
+    $err_col = 'Unknown field found while parsing TSKV format: ';
+    if ( strpos($resposne, $err_col) ) {
+        $col = substr($o, strpos($o, $err_col) + strlen($err_col), strpos($o, ': (at row') - strpos($o, $err_col) - strlen($err_col));
+        exec('clickhouse-client -q "alter table event add column ' . $col . ' String"');
+    }
+    else {
+      exec('cat /var/log/track/in_' . $name . '.pending >> /var/log/track/in_' . $name . '.error');
+    }
+  }
+  
+  return $issue;
+}
+
+while ( 1 ) {
+  clearstatcache();
+  store_pending();
+  sleep(5);
+  detach_logs();
 }
