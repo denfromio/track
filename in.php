@@ -39,13 +39,13 @@ function store_event( $name ) {
       $col = substr($response, strpos($response, $err_col) + strlen($err_col), strpos($response, ': (at row') - strpos($response, $err_col) - strlen($err_col));
       echo 'Adding column ' . $col . "\n";
       exec('clickhouse-client -q "alter table ' . $name . ' add column ' . $col . ' String"');
-      # store_event($name);
+      store_event($name);
     }
     else if ( strpos($response, $err_tbl) ) {
       $tbl = substr($response, strpos($response, $err_tbl) + strlen($err_tbl), strpos($response, ' doesn\'t exist.') - strpos($response, $err_tbl) - strlen($err_tbl));
       echo 'Adding table ' . $tbl . "\n";
       exec('clickhouse-client -q "create table ' . $tbl . ' (time Date) engine = MergeTree ORDER BY time Partition by time"');
-      # store_event($name);
+      store_event($name);
     }
     else {
       exec('cat /var/log/track/in_' . $name . '.pending >> /var/log/track/in_' . $name . '.error');
