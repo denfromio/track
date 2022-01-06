@@ -29,9 +29,6 @@ function store_event( $name ) {
   $response = implode("\n", $o);
   
   if ( $error ) {
-    echo $name . "\n";
-    echo 'Error: ' . $response . "\n\n";
-    
     $err_col = 'Unknown field found while parsing TSKV format: ';
     $err_tbl = 'DB::Exception: Table default.';
     
