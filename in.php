@@ -38,7 +38,7 @@ function store_event( $name ) {
     if ( strpos($response, $err_col) ) {
       $col = substr($response, strpos($response, $err_col) + strlen($err_col), strpos($response, ': (at row') - strpos($response, $err_col) - strlen($err_col));
       echo 'Adding column ' . $col . "\n";
-      exec('clickhouse-client -q "alter table event add column ' . $col . ' String"');
+      exec('clickhouse-client -q "alter table ' . $name . ' add column ' . $col . ' String"');
       # store_event($name);
     }
     else if ( strpos($response, $err_tbl) ) {
