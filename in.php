@@ -8,6 +8,8 @@ while ( 1 ) {
 
   sleep(5);
 
-  exec('mv /var/log/track/in.log /var/log/track/in.pending.log');
-  exec('kill -USR1 `cat /var/run/nginx.pid`');
+  if ( filesize('/var/log/track/in.log') ) {
+    exec('mv /var/log/track/in.log /var/log/track/in.pending.log');
+    exec('kill -USR1 `cat /var/run/nginx.pid`');
+  }
 }
