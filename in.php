@@ -9,6 +9,8 @@ while ( 1 ) {
   }
 
   sleep(5);
+  
+  echo filesize('/var/log/track/in.log') . '.';
 
   if ( filesize('/var/log/track/in.log') ) {
     exec('mv /var/log/track/in.log /var/log/track/in.pending.log');
