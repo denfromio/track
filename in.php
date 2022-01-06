@@ -10,7 +10,7 @@ while ( 1 ) {
     
     $err = 'Unknown field found while parsing TSKV format: ';
     if ( strpos($o, $err) ) {
-      $col = substr($o, strpos($o, $err) + strlen($err));
+      $col = substr($o, strpos($o, $err) + strlen($err), strpos($o, ': (at row') - strpos($o, $err) - strlen($err));
       var_dump($col);
       $sol = substr($col, 0, strpos($col, ':'));
       
