@@ -123,7 +123,7 @@ function metric_data($name, $options) {
       }
     }
     
-    $where = implode(' AND ', $where);
+    $where = ' WHERE ' . implode(' AND ', $where);
   }
   else {
     $where = '';
