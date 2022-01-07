@@ -77,14 +77,6 @@ function metric($name, $options = []) {
   return $options['html-only'] ? $html : "<div class='track-metric' id='metric-{$metric_id}'>{$html}</div>";
 }
 
-if ( $_POST ) {
-  ob_clean();
-  
-  $_POST['html-only'] = true;
-  echo metric($_POST['metric'], $_POST);
-  exit;
-}
-
 function metric_data($name, $options) {
   $period = $options['period']?:'day';
   
@@ -152,4 +144,16 @@ function metric_data($name, $options) {
   }
   
   return $time_series;
+}
+
+
+
+
+if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
+  $_POST = json_decode(file_get_contents('php://input'), 1);
+  ob_clean();
+  
+  $_POST['html-only'] = true;
+  echo metric($_POST['metric'], $_POST);
+  exit;
 }
