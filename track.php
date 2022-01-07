@@ -112,7 +112,25 @@ function metric_data($name, $options) {
   }
   
   
-  $data = clickhouse('SELECT ' . $time_group . ' t,' . $sel_val . ' v FROM ' . $name . ' GROUP BY t ORDER BY t DESC LIMIT 100');
+  if ( $options['where'] ) {
+    $where = [];
+    foreach ( $options['where'] as $k => $v ) {
+      if ( strpos($k, '_id') ) {
+        $where[] = "{$k} = {$v}";
+      }
+      else {
+        $where[] = "{$k} = '{$v}'";
+      }
+    }
+    
+    $where = implode(' AND ', $where);
+  }
+  else {
+    $where = '';
+  }
+  
+  
+  $data = clickhouse('SELECT ' . $time_group . ' t,' . $sel_val . ' v FROM ' . $name . ' ' . $where . ' GROUP BY t ORDER BY t DESC LIMIT 100');
   foreach ( $data as $row ) {
     $kv[$row['t']] = $row['v'];
   }
