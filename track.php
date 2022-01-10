@@ -128,7 +128,7 @@ function metric_data($name, $options) {
   }
   
   
-  $previous = $kv[array_key_first($kv)];
+  $previous = $kv[array_key_last($kv)];
   foreach ( $tpl as $t ) {
     if ( $options['latest'] ) {
       $default = $previous;
