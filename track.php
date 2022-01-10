@@ -152,7 +152,7 @@ function metric_data($name, $options) {
 if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
   $post = json_decode(file_get_contents('php://input'), 1);
   
-  if ( $post ) {
+  if ( $post && $post['metric'] ) {
     $_POST = $post;
     ob_clean();
 
