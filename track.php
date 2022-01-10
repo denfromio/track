@@ -150,10 +150,14 @@ function metric_data($name, $options) {
 
 
 if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
-  $_POST = json_decode(file_get_contents('php://input'), 1);
-  ob_clean();
+  $post = json_decode(file_get_contents('php://input'), 1);
   
-  $_POST['html-only'] = true;
-  echo metric($_POST['metric'], $_POST);
-  exit;
+  if ( $post ) {
+    $_POST = $post;
+    ob_clean();
+
+    $_POST['html-only'] = true;
+    echo metric($_POST['metric'], $_POST);
+    exit;
+  }
 }
